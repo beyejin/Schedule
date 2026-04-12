@@ -2,11 +2,14 @@ package com.example.schedule.controller;
 
 import com.example.schedule.dto.CreateScheduleRequest;
 import com.example.schedule.dto.CreateScheduleResponse;
+import com.example.schedule.dto.GetScheduleResponse;
 import com.example.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController// http 요청 받는 컨트롤러
 @RequiredArgsConstructor // final 필드 자동으로 생성자 만들어줌
@@ -16,12 +19,26 @@ public class ScheduleController {
 
     @PostMapping
     public ResponseEntity<CreateScheduleResponse> createSchedule(
-            @RequestBody CreateScheduleRequest request){
+            @RequestBody CreateScheduleRequest request) {
         CreateScheduleResponse result = scheduleService.save(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
 
-    //@GetMapping
-    //public ResponseEntity
+    // 단 건 조회
+    @GetMapping("/{scheduleId}")
+    public ResponseEntity<GetScheduleResponse> getOneSchedule(@PathVariable Long scheduleId) {
+        GetScheduleResponse result = scheduleService.getOne(scheduleId);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // 다 건 조회
+    @GetMapping
+    public ResponseEntity<List<GetScheduleResponse>> getAllSchedules(@RequestParam(required = false) String author) { // RequestParam이 url 뒤에서 값을 꺼내옴  required = false이건 옵셔널 처럼 없어도 된다는 뜻
+        List<GetScheduleResponse> reslut = scheduleService.getAll(author);
+        return ResponseEntity.status(HttpStatus.OK).body(reslut);
+    }
+
+
 }
+
