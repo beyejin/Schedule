@@ -71,12 +71,12 @@ public class ScheduleService {
 
         for (Schedule schedule : schedules) {
             dtos.add(new GetScheduleResponse(
-                    schedule.getId(),
-                    schedule.getTitle(),
-                    schedule.getContent(),
-                    schedule.getAuthor(),
-                    schedule.getCreateAt(),
-                    schedule.getModifiedAt()
+                            schedule.getId(),
+                            schedule.getTitle(),
+                            schedule.getContent(),
+                            schedule.getAuthor(),
+                            schedule.getCreateAt(),
+                            schedule.getModifiedAt()
                     )
             );
         }
@@ -102,6 +102,19 @@ public class ScheduleService {
                 schedule.getCreateAt(),
                 schedule.getModifiedAt()
         );
+    }
+
+    //삭제 그디어!!! 악 아아아아아ㅏ
+    @Transactional
+    public void delete(Long scheduleId, String password) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
+                () -> new IllegalStateException("존재하지 않는 스케줄입니다.")
+        );
+        if (!schedule.getPassword().equals(password)) {
+            throw new IllegalStateException("비밀 번호가 일치하지 않습니다.");
+        }
+
+        scheduleRepository.deleteById(scheduleId);
     }
 
 

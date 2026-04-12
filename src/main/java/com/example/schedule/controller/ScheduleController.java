@@ -1,6 +1,7 @@
 package com.example.schedule.controller;
 
 import com.example.schedule.dto.*;
+import com.example.schedule.entity.Schedule;
 import com.example.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -45,6 +46,16 @@ public class ScheduleController {
     ) {
         UpdateScheduleResponse result = scheduleService.update(scheduleId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // 삭제
+    @DeleteMapping("/{scheduleId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long scheduleId,
+            @RequestBody DeleteScheduleRequest request
+    ) {
+        scheduleService.delete(scheduleId, request.getPassword());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
