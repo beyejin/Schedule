@@ -211,27 +211,51 @@ Started ScheduleApplication
 
 ## 8. 트러블슈팅
 
-### 8-1. Unknown database 'schedule'
+### 8-1. Unknown database `schedule`
+
+#### 문제
+
+애플리케이션 실행 시 아래와 같은 오류가 발생했다.
+
+```text
+Unknown database 'schedule'
+```
 
 #### 원인
 
-DB가 존재하지 않음
+`application.properties`의 DB URL은 `schedule` 데이터베이스를 바라보고 있었지만,
+MySQL에 해당 데이터베이스가 생성되어 있지 않았다.
 
 #### 해결
+
+MySQL에서 아래 명령어를 실행하여 데이터베이스를 생성하였다.
 
 ```sql
 CREATE DATABASE schedule;
 ```
 
+이후 `spring.datasource.url=jdbc:mysql://localhost:3306/schedule` 설정과 DB 이름을 일치시켜 해결하였다.
+
 ---
 
 ### 8-2. JSON parse error
 
+#### 문제
+
+POST 요청 시 아래와 같은 오류가 발생했다.
+
+```text
+JSON parse error: Unexpected character ... was expecting comma to separate Object entries
+```
+
 #### 원인
 
-JSON 형식 오류 (쉼표 누락 등)
+Postman에서 요청 Body를 작성할 때 JSON 문법이 올바르지 않았다.
+특히 필드 사이 쉼표가 누락된 경우 파싱 오류가 발생했다.
 
 #### 해결
+
+JSON 형식을 다시 확인하고 올바른 문법으로 요청을 보냈다.
 
 ```json
 {
@@ -241,15 +265,29 @@ JSON 형식 오류 (쉼표 누락 등)
 }
 ```
 
+이를 통해 API 요청 데이터는 값 자체뿐 아니라 JSON 형식도 정확해야 한다는 점을 확인할 수 있었다.
+
 ---
 
-### 8-3. content null 에러
+### 8-3. `content` null 에러
+
+#### 문제
+
+일정 생성 요청 시 아래와 같은 오류가 발생했다.
+
+```text
+not-null property references a null or transient value for entity Schedule.content
+```
 
 #### 원인
 
-`content` 대신 `contents`로 보내서 매핑 실패
+요청 JSON에서 필드명을 `content`가 아니라 `contents`로 잘못 작성하여,
+Spring이 DTO에 값을 정상적으로 바인딩하지 못했다.
+그 결과 `content` 값이 `null`로 들어가면서 DB 저장 시 not-null 제약 조건에 걸렸다.
 
 #### 해결
+
+JSON 요청 필드명을 DTO와 동일하게 수정하였다.
 
 ```json
 {
@@ -258,6 +296,119 @@ JSON 형식 오류 (쉼표 누락 등)
   "author": "한예진"
 }
 ```
+
+이 과정을 통해 요청 JSON의 key 이름은 DTO 필드명과 정확히 일치해야 한다는 점을 배웠다.
+
+---
+
+### 8-4. 포트 문제로 착각한 실행 오류
+
+#### 문제
+
+초기에는 애플리케이션 실행 실패 메시지를 보고 포트 충돌 문제라고 판단했다.
+
+#### 원인
+
+실제로는 포트 충돌이 아니라 ApplicationContext 초기화 과정에서 DB 연결 실패가 발생한 것이었다.
+포트 충돌이라면 보통 `Port 8080 was already in use` 같은 메시지가 나타나야 하지만,
+이번 경우는 DB 연결 오류가 근본 원인이었다.
+
+#### 해결
+
+에러 로그의 핵심 원인을 다시 확인했고, `Caused by` 아래의 실제 예외 메시지를 기준으로 원인을 추적하였다.
+그 결과 포트 문제가 아니라 DB 미생성 문제임을 확인하고 데이터베이스 생성으로 해결하였다.
+
+이 경험을 통해 스프링 실행 오류는 마지막 줄보다 `Caused by` 로그를 먼저 보는 습관이 중요하다는 점을 배웠다.
+
+---
+
+### 8-5. MySQL Dialect 설정 관련 경고
+
+#### 문제
+
+실행 중 아래와 같은 경고 메시지가 출력되었다.
+
+```text
+MySQLDialect does not need to be specified explicitly
+```
+
+#### 원인
+
+Hibernate가 MySQL Dialect를 자동으로 감지할 수 있는데도,
+`application.properties`에 `spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect`를 직접 명시하고 있었다.
+
+#### 해결
+
+해당 설정은 필수가 아니므로 제거 가능하다는 점을 확인하였다.
+프로젝트 실행에는 큰 문제가 없었지만, 불필요한 설정을 줄이는 방향으로 정리할 수 있었다.
+
+이 과정을 통해 프레임워크가 자동으로 처리하는 설정과 직접 지정해야 하는 설정을 구분하는 것이 중요하다는 점을 배웠다.
+
+---
+
+### 8-6. Git 작업 후 PR이 바로 보이지 않았던 문제
+
+#### 문제
+
+브랜치를 생성하고 push까지 완료했지만, GitHub 화면에서 Pull Request 버튼이 바로 보이지 않았다.
+
+#### 원인
+
+비교 화면에서 `base: main`, `compare: main`으로 설정되어 있었기 때문에
+브랜치 간 차이를 GitHub가 표시하지 못하고 있었다.
+
+#### 해결
+
+비교 브랜치를 `feature/schedule-create`로 변경하여
+`base: main`, `compare: feature/schedule-create` 상태로 맞춘 뒤 Pull Request를 생성할 수 있었다.
+
+이 과정을 통해 PR은 단순히 push만으로 생성되는 것이 아니라,
+어느 브랜치를 어느 브랜치로 병합할 것인지 비교 기준을 올바르게 설정해야 한다는 점을 이해했다.
+
+---
+
+### 8-7. main 브랜치에서 먼저 작업한 문제
+
+#### 문제
+
+처음에는 기능 개발을 별도 브랜치가 아니라 `main` 브랜치에서 진행했다.
+
+#### 원인
+
+브랜치 전략에 익숙하지 않아 작업 전에 feature 브랜치를 생성하지 못했다.
+
+#### 해결
+
+다행히 아직 커밋 전 상태였기 때문에, 현재 작업 내용을 유지한 채 아래 명령어로 새 브랜치를 생성하여 문제를 해결했다.
+
+```bash
+git checkout -b feature/schedule-create
+```
+
+그 후 해당 브랜치에서 add, commit, push를 진행하고 Pull Request까지 연결할 수 있었다.
+
+이 경험을 통해 기능 개발은 main이 아니라 별도 feature 브랜치에서 시작하는 습관이 중요하다는 점을 배웠다.
+
+---
+
+### 8-8. 요청 데이터와 엔티티 제약 조건의 불일치
+
+#### 문제
+
+API 요청은 전송되었지만 DB 저장 과정에서 예외가 발생하였다.
+
+#### 원인
+
+엔티티에는 `nullable = false` 같은 제약 조건이 적용되어 있는데,
+요청 데이터 검증이 충분히 이루어지지 않으면 런타임에서 DB 저장 단계에 가서야 오류가 발생하게 된다.
+
+#### 해결
+
+요청 DTO와 엔티티의 필수 필드를 다시 확인하고,
+Postman 테스트 시 필수값이 모두 포함되도록 요청 형식을 점검하였다.
+
+이 경험을 통해 API 개발에서는
+요청 DTO, 서비스 로직, 엔티티 제약 조건이 서로 일관되게 맞물려야 한다는 점을 알게 되었다.
 
 ---
 
