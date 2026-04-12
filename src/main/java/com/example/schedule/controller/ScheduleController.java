@@ -1,8 +1,6 @@
 package com.example.schedule.controller;
 
-import com.example.schedule.dto.CreateScheduleRequest;
-import com.example.schedule.dto.CreateScheduleResponse;
-import com.example.schedule.dto.GetScheduleResponse;
+import com.example.schedule.dto.*;
 import com.example.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,6 +35,16 @@ public class ScheduleController {
     public ResponseEntity<List<GetScheduleResponse>> getAllSchedules(@RequestParam(required = false) String author) { // RequestParam이 url 뒤에서 값을 꺼내옴  required = false이건 옵셔널 처럼 없어도 된다는 뜻
         List<GetScheduleResponse> reslut = scheduleService.getAll(author);
         return ResponseEntity.status(HttpStatus.OK).body(reslut);
+    }
+
+    // 업데이트
+    @PatchMapping("/{scheduleId}")
+    public ResponseEntity<UpdateScheduleResponse> update(
+            @PathVariable Long scheduleId,
+            @RequestBody UpdateScheduleRequest request
+    ) {
+        UpdateScheduleResponse result = scheduleService.update(scheduleId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 

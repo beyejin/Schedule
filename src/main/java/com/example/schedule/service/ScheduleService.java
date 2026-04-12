@@ -1,8 +1,6 @@
 package com.example.schedule.service;
 
-import com.example.schedule.dto.CreateScheduleRequest;
-import com.example.schedule.dto.CreateScheduleResponse;
-import com.example.schedule.dto.GetScheduleResponse;
+import com.example.schedule.dto.*;
 import com.example.schedule.entity.Schedule;
 import com.example.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -78,13 +76,33 @@ public class ScheduleService {
                     schedule.getContent(),
                     schedule.getAuthor(),
                     schedule.getCreateAt(),
-                    schedule.getModifiedAt()));
+                    schedule.getModifiedAt()
+                    )
+            );
         }
         return dtos;
     }
 
     //업데이트
+    @Transactional
+    public UpdateScheduleResponse update(Long scheduleId, UpdateScheduleRequest request) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
+                () -> new IllegalStateException("잃은 유저입니다.")
+        );
+        schedule.update(
+                request.getTitle(),
+                request.getAuthor()
+        );
 
+        return new UpdateScheduleResponse(
+                schedule.getId(),
+                schedule.getTitle(),
+                schedule.getContent(),
+                schedule.getAuthor(),
+                schedule.getCreateAt(),
+                schedule.getModifiedAt()
+        );
+    }
 
 
 }
