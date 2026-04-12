@@ -87,7 +87,7 @@ public class ScheduleService {
     @Transactional
     public UpdateScheduleResponse update(Long scheduleId, UpdateScheduleRequest request) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new IllegalStateException("잃은 유저입니다.")
+                () -> new IllegalStateException("없는 유저입니다.")
         );
         schedule.update(
                 request.getTitle(),
