@@ -26,32 +26,26 @@ public class ScheduleService {
         );
         Schedule savedSchedule = scheduleRepository.save(schedule);
 
-        return new CreateScheduleResponse(
+        return new CreateScheduleResponse(savedSchedule);
+    }
+
+    // 단 건 조회
+    public GetScheduleResponse getOne(Long scheduleId) {
+
+        Schedule savedSchedule = scheduleRepository.findById(scheduleId).orElseThrow(
+                ()-> new IllegalStateException("존재하지 않는 일정입니다.")
+        );
+
+        return new GetScheduleResponse(
                 savedSchedule.getId(),
                 savedSchedule.getTitle(),
                 savedSchedule.getContent(),
                 savedSchedule.getAuthor(),
-                savedSchedule.getPassword(),
                 savedSchedule.getCreateAt(),
                 savedSchedule.getModifiedAt()
         );
     }
 
-    // 단 건 조회
-    @Transactional(readOnly = true)
-    public GetScheduleResponse getOne(Long scheduleId) {
-        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(
-                () -> new IllegalStateException("존재하지 않는 스케줄입니다.")
-        );
-        return new GetScheduleResponse(
-                schedule.getId(),
-                schedule.getTitle(),
-                schedule.getContent(),
-                schedule.getAuthor(),
-                schedule.getCreateAt(),
-                schedule.getModifiedAt()
-        );
-    }
 
     // 다 건 조회
     @Transactional(readOnly = true)
@@ -116,6 +110,7 @@ public class ScheduleService {
 
         scheduleRepository.deleteById(scheduleId);
     }
+
 
 
 }
