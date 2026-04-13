@@ -53,17 +53,8 @@ src
 
 ## 4. ERD
 
-```text
-Schedule
--------------------------
-id         BIGINT PK
-title      VARCHAR
-content    VARCHAR
-author     VARCHAR
-password   VARCHAR
-createdAt  DATETIME
-updatedAt  DATETIME
-```
+<img width="344" height="174" alt="image" src="https://github.com/user-attachments/assets/73881f1d-4a8e-48ec-93e2-0d6e5c947879" />
+
 
 ---
 
