@@ -53,7 +53,7 @@ src
 
 ## 4. ERD
 
-<img width="344" height="174" alt="image" src="https://github.com/user-attachments/assets/73881f1d-4a8e-48ec-93e2-0d6e5c947879" />
+<img width="1069" height="478" alt="image" src="https://github.com/user-attachments/assets/3fbadd1e-8e09-409c-b701-9ddc1cb598df" />
 
 
 ---
