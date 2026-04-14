@@ -12,11 +12,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 
-@Getter
-@Entity
+@Getter // 모든 필드에 대해한 getter 메서드를 자동 생성
+@Entity // 이 클래스가 DB 테이블과 매핑되는 JPA 엔티티를 선언
 @Table(name = "schedules")// 데이터 베이스 이름 설정
-@NoArgsConstructor (access = AccessLevel.PROTECTED)// 기본생성자를 자동 생성 (jpa(공용 관리자)가 객체를 만들때 쓰는 빈 틀)
-@EntityListeners(AuditingEntityListener.class)// 작성일, 수정일 필드는 JPA Auditing을 활용,엔티티의 생성 시간 / 수정 시간 / 작성자 등을 자동으로 기록해주는 기능
+// 기본생성자를 PROTECTED로 생성 -> 외부에서 빈 객체 직접 생성 방지 (jpa(공용 관리자)가 객체를 만들때 쓰는 빈 틀)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+// 작성일, 수정일 필드는 JPA Auditing을 활용,엔티티의 생성 시간 / 수정 시간 / 작성자 등을 자동으로 기록해주는 기능
+// -> @CreatedDatam, @LastModifiedData가 자동 동작하도록 해줌
+@EntityListeners(AuditingEntityListener.class)
+
 public class Schedule {
     //속
 
@@ -32,8 +36,8 @@ public class Schedule {
     @Column(length = 30, nullable = false)
     private String password;
 
-    @CreatedDate
-    @Column(updatable = false)// 처음 저장될 떄 자동으로 시간 저장
+    @CreatedDate // 처음 저장될 떄 자동으로 시간 저장
+    @Column(updatable = false)
     private LocalDateTime createAt;
     @LastModifiedDate// 수정될 때마다 자동으로 시간 업데이트
     private LocalDateTime modifiedAt;
@@ -49,7 +53,7 @@ public class Schedule {
 
 
     //기
-    public void update(String title, String author){
+    public void update(String title, String author) {
         this.title = title;
         this.author = author;
     }
